@@ -9,6 +9,7 @@ export component WeekView inherits VerticalBox {
     spacing: 0;
     private property <[string]> week_days: ["T", "Mo", "Tu", "We", "Thu", "Fr", "Sa", "Su"];
     private property <[string]> events: ["Event1", "Event2", "Event3", "Event4", "Event5", "Event6", "Event7"];
+    private property <float> cur_tim: 13.75;
     private property <[int]> times: [
         0,
         1,
@@ -95,6 +96,24 @@ export component WeekView inherits VerticalBox {
 
             Close { }
         }
+        Path {
+            x: 0;
+            y: (parent.viewport-height * cur_tim / 24) - parent.viewport-height / 2;
+            stroke: red;
+            stroke-width: 2px;
+            MoveTo {
+                x: 0;
+                y: 0;
+            }
+
+            LineTo {
+                x: 100;
+                y: 0;
+            }
+
+            Close { }
+        }
+
         HorizontalBox {
             padding: 0;
             spacing: 0;
