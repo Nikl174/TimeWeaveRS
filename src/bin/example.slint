@@ -1,12 +1,24 @@
-import { HorizontalBox, GridBox, VerticalBox, ScrollView } from "std-widgets.slint";
+import { HorizontalBox, GridBox, VerticalBox, ScrollView, Switch, DatePickerPopup, Button } from "std-widgets.slint";
+
+struct DateTime {
+    day: int,  // [1,31] e N
+    month: int, // [1,12] e N
+    year: int,
+    start: float, // [0.0,23.985] e Q
+    end: float, // [0.0,23.985] e Q
+}
 
 struct Event {
-    
+    date: DateTime,
+    name: string,
+    desc: string,
+    id: int,  // hash(hash(name,desc),date)
 }
 
 export component WeekView inherits VerticalBox {
     padding: 0;
     spacing: 0;
+    in property <bool> edit_mode: false;
     private property <[string]> week_days: ["T", "Mo", "Tu", "We", "Thu", "Fr", "Sa", "Su"];
     private property <[string]> events: ["Event1", "Event2", "Event3", "Event4", "Event5", "Event6", "Event7"];
     private property <float> cur_tim: 13.75;
@@ -45,6 +57,7 @@ export component WeekView inherits VerticalBox {
             background: idx == 0 ? grey : darkgrey;
             border-color: black;
             border-width: 1px;
+            drop-shadow-color: black;
             Text {
                 text: day;
                 horizontal-alignment: center;
@@ -61,6 +74,7 @@ export component WeekView inherits VerticalBox {
         private property <length> row_height: self.viewport-height / (4 * times.length);
         viewport-height: 2000px;
         padding: 0;
+        interactive: !edit_mode;
         for line in times: Path {
             x: 0;
             y: (parent.viewport-height * line / 24) - parent.viewport-height / 2;
@@ -118,7 +132,8 @@ export component WeekView inherits VerticalBox {
             padding: 0;
             spacing: 0;
             Rectangle {
-                background: transparent;
+                background: black;
+                opacity: 70%;
                 width: column_width / 2;
                 for time in times: Text {
                     // width: 100%;
@@ -180,11 +195,61 @@ export component WeekView inherits VerticalBox {
                 }
             }
         }
-
-        interactive: false;
     }
 }
 
+component Footer inherits HorizontalBox {
+    padding: 0;
+    spacing: 0;
+    in property <bool> checked;
+    date-picker-button := Button {
+        text: @tr("Open Date Picker");
+
+        clicked => {
+            date-picker.show();
+        }
+    }
+
+    date-picker := DatePickerPopup {
+
+        close-on-click: false;
+
+        accepted(date) => {
+            date-picker.close();
+        }
+    }
+
+    Rectangle {
+        horizontal-stretch: 100;
+    }
+
+    sw := Switch {
+        text: "Edit";
+        checked: false;
+    }
+
+    callback toggled <=> sw.toggled;
+}
+
 export component MyApp inherits Window {
-    WeekView { }
+    title: "lol";
+    max-width: 2560px;
+    max-height: 1440px;
+    property <bool> edit: false;
+    VerticalBox {
+        padding: 0;
+        spacing: 0;
+        wv := WeekView {
+            height: 95%;
+            edit_mode: edit;
+        }
+
+        Footer {
+            height: 5%;
+            checked: edit;
+            toggled => {
+                edit = !edit;
+            }
+        }
+    }
 }
