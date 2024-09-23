@@ -1,0 +1,46 @@
+# Copyright © SixtyFPS GmbH <info@slint.dev>
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "gallery"
+version = "1.7.1"
+authors = ["Slint Developers <info@slint.dev>"]
+edition = "2021"
+build = "build.rs"
+license = "MIT"
+publish = false
+description = "Slint Widgets Gallery Example"
+
+[[bin]]
+# path = "main.rs"
+name = "gallery"
+
+[build-dependencies]
+slint-build = "1.7.1"
+
+[dependencies]
+slint = { version="1.7.1", features = [ "backend-android-activity-06" ] }
+
+# Disable gettext on macOS due to https://github.com/Koka/gettext-rs/issues/114
+[target.'cfg(not(target_os = "android"))'.dependencies]
+slint = { version="1.7.1", features=["gettext"] }
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger = "0.14.1"
+
+
+# Remove the `#wasm#` to uncomment the wasm build.
+# This is commented out by default because we don't want to build it as a library by default
+# The CI has a script that does sed "s/#wasm# //" to generate the wasm build.
+
+ [lib]
+name = "gallery"
+crate-type = ["lib", "cdylib"]
+# path = "lib.rs"
+
+# Andoroid settings
+# See more: https://github.com/rust-mobile/cargo-apk?tab=readme-ov-file#manifest
+[package.metadata.android]
+package = "dev.slint.examples.gallery"
+resources = "android-res"
+build_targets = [ "aarch64-linux-android" ]
+
