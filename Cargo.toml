@@ -1,0 +1,13 @@
+[package]
+name = "calendars"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = { version = "0.28.1" , features = ["default",] }
+egui_extras = { version = "0.28.1", features = ["default", "image"]}
+slint = "1.7.1"
+
+[[bin]]
+path = "./src/slint_example.rs"
+name = "slint_example"
