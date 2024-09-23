@@ -15,14 +15,92 @@ struct Event {
     id: int,  // hash(hash(name,desc),date)
 }
 
+export component EventRect inherits Rectangle {
+    // private property <int> column: index;
+    // private property <int> r_row: index;
+    in-out property <Event> event;  
+    in property <length> column_width;
+    in property <length> row_height;
+    touch_item := TouchArea {
+        private property <length> x_diff:parent.x + self.mouse-x - self.pressed-x;
+        private property <length> y_diff:parent.y + self.mouse-y - self.pressed-y;
+        moved => {
+            // parent.y += self.mouse-y - self.pressed-y;
+                            if (y_diff > (row_height * (parent.r_row + 1))) {
+                parent.r_row += 0.5;
+            } else if (y_diff <= (row_height * (parent.r_row))) {
+                parent.r_row -= 0.5;
+            }
+            if (x_diff > (column_width * (parent.column + 1) - column_width / 2)) {
+                // parent.background = Colors.blue;
+                                parent.column += 1;
+            } else if (x_diff <= (column_width * (parent.column) - column_width / 2)) {
+                // parent.background = Colors.red;
+                                parent.column -= 1;
+            }
+            parent.y = row_height * parent.r_row;
+            parent.x = column_width * parent.column;
+            if (cal.viewport-y + parent.y > (0.7 * cal.height)) {
+                cal.viewport-y -= (abs(cal.viewport-y) + cal.height < cal.viewport-height) ? row_height / 2 : 0;
+            }
+            if (cal.viewport-y + parent.y < (0.3 * cal.height)) {
+                cal.viewport-y += cal.viewport-y < 0 ? row_height / 2 : 0;
+            }
+        }
+
+        mouse-cursor: grab;
+    }
+
+    name := Text {
+        text: day.name;
+        color: black;
+    }
+
+    desc := Text {
+        text: day.desc;
+        color: darkgrey;
+        font-size: 60% * name.font-size;
+        y: name.y + 20px;
+    }
+
+    // padding: 10px;
+                    background: touch_item.pressed ? lightgrey : gray;
+    border-width: 3px;
+    border-color: touch_item.has-hover ? white : black;
+    y: 4 * row_height * day.date.start;
+    x: column_width * day.date.day;
+    height: abs(day.date.end - day.date.start) * 4 * row_height;
+    width: column_width;
+}
+
 export component WeekView inherits VerticalBox {
     padding: 0;
     spacing: 0;
     in property <bool> edit_mode: false;
     private property <[string]> week_days: ["T", "Mo", "Tu", "We", "Thu", "Fr", "Sa", "Su"];
-    private property <[string]> events: ["Event1", "Event2", "Event3", "Event4", "Event5", "Event6", "Event7"];
+    // private property <[string]> events: ["Event1", "Event2", "Event3", "Event4", "Event5", "Event6", "Event7"];
+    in property <[Event]> events: [
+        {
+            name: "CoolEvent",
+            desc: "lol",
+            id: 1,
+            date: { day: 1, month: 1, year: 1, start: 5.0, end: 7.0 },
+        },
+        {
+            date: { day: 3, month: 1, year: 1, start: 7.0, end: 10.0 },
+            name: "AnotherCoolEvent",
+            desc: "rofl",
+            id: 2
+        },
+        {
+            date: { day: 4, month: 1, year: 1, start: 2.0, end: 6.0 },
+            name: "SoManyEventsWow",
+            desc: "uff",
+            id: 3
+        }
+    ];
     private property <float> cur_tim: 13.75;
-    private property <[int]> times: [
+    in-out property <[int]> times: [
         0,
         1,
         2,
@@ -72,7 +150,7 @@ export component WeekView inherits VerticalBox {
 
     cal := Flickable {
         private property <length> row_height: self.viewport-height / (4 * times.length);
-        viewport-height: 2000px;
+        // viewport-height: 2000px;
         padding: 0;
         interactive: !edit_mode;
         for line in times: Path {
@@ -180,17 +258,24 @@ export component WeekView inherits VerticalBox {
                     }
 
                     name := Text {
-                        text: day;
+                        text: day.name;
                         color: black;
+                    }
+
+                    desc := Text {
+                        text: day.desc;
+                        color: darkgrey;
+                        font-size: 60% * name.font-size;
+                        y: name.y + 20px;
                     }
 
                     // padding: 10px;
                     background: touch_item.pressed ? lightgrey : gray;
                     border-width: 3px;
                     border-color: touch_item.has-hover ? white : black;
-                    y: row_height * index;
-                    x: column_width * index;
-                    height: 10%;
+                    y: 4 * row_height * day.date.start;
+                    x: column_width * day.date.day;
+                    height: abs(day.date.end - day.date.start) * 4 * row_height;
                     width: column_width;
                 }
             }
